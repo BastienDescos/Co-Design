@@ -1,0 +1,66 @@
+\documentclass[11pt, openright]{book}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+    % Cover Variables
+    \newcommand{\ctoptitle}{Télécommunication Sans Fils}
+    \newcommand{\ctitle}{-- Devoir Maison --}
+    \newcommand{\cautor}{\Large{Bastien DESCOS}}
+    \newcommand{\cdate}{23.05.2025}
+    \newcommand{\sectittle}{}
+
+
+    % Header Variables
+        \newcommand{\headRE}{Télécommunication Sans Fils - DM}
+        \newcommand{\headLE}{\emph{\rightmark}}
+        \newcommand{\footRE}{B.Descos $-$ \cdate}
+        \newcommand{\footLE}{\emph{\thepage}}
+
+    % TOC Variables
+        \newcommand{\toctitle}{Table des Matières}
+        
+        \newcommand{\tocchapter}{Chapter}
+        \newcommand{\toccount}{3}
+  
+    % Chapter Variables
+        \newcommand{\chvar}{Chapter -}
+
+    % Other Variables
+        \newcommand{\figcountdepth}{1}
+
+\input{./template/common/style.tex}
+\input{./template/common/math.tex}
+\input{./template/common/header.tex}
+\input{./template/common/toc.tex}
+
+    % figure support
+    \usepackage{import}
+    \usepackage{xifthen}
+    \pdfminorversion=7
+    \usepackage{pdfpages}
+    \usepackage{transparent}
+    \newcommand{\incfig}[1]{%
+            \def\svgwidth{\columnwidth}
+            \import{./figures/}{#1.pdf_tex}
+    }
+
+    \pdfsuppresswarningpagegroup=1
+
+    \newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+
+\begin{document}
+% Spacing
+\input{./template/common/begin.tex}
+
+% Cover
+\input{./template/common/cover.tex}
+    
+\pagestyle{fancy}
+
+\newpage
+
+\end{document}
