@@ -5,6 +5,7 @@
 \definecolor{ccolor4}{RGB}{171,206,145}
 
 \newcommand{\Empty}{}
+\providecommand{\csubautor}{}
 
 \ifx\ctitle\Empty 
 
@@ -20,8 +21,8 @@
 
         \node[opacity=0.15,inner sep=0pt, anchor=north west] at (current page.north west){\includegraphics[width=0.5\paperwidth,height=0.5\paperheight]{./template/logos/invert3.png}};
 
-        \node at (page cs:0,0.875) {\Large\bfseries\textsc{FISE 2}};
-        \node at (page cs:0,0.925) {\LARGE\bfseries\textsc{Telecom Saint-Étienne}};
+        \node at (page cs:0,0.875) {\Large\textsc{FISE 3}};
+        \node at (page cs:0,0.925) {\LARGE\textsc{Telecom Saint-Étienne}};
 
 
         %\node[opacity=0.15, inner sep=0pt, anchor=south west] at (current page.south west){\includegraphics[width=0.5\paperwidth,height=0.5\paperheight]{~/.config/latex-utils/logos/invert2.png}};
@@ -32,8 +33,7 @@
         \node at (page cs:0,0.445) {\Large\textsc{Étude en Filière Ingénieur sous Statut Étudiant}};
         \node at (page cs:0,0.4) {\Large\textsc{\cdate}};
         \node at (page cs:0,0.335) {\LARGE\textsc{\cautor}};
-        \node at (page cs:0,0.275) {\LARGE\textsc{\csubautor}};
-
+        \node at (page cs:0,0.285) {\Large\textsc{\csubautor}};
         \node at (page cs:0,0.9) {\includegraphics[height=1.5cm]{./template/logos/Logo.png}\hspace{11cm}\includegraphics[height=1.5cm]{./template/logos/UJM.png}};
 
     \end{tikzpicture}
@@ -51,7 +51,7 @@
 
 
 
-\ifx\sectittle\Empty 
+\ifx\sectittle\Empty
 
 \else
 \newgeometry{left=2.5cm, width=16cm, bottom=2.5cm, top=2.5cm}
