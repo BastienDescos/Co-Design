@@ -170,6 +170,18 @@ Pour les modèles utilisés nous avons utilisé un modèle simple de CNN avec 2 
 Nous avons également utilisé un modèle de MLP avec 3 couches soit 1 couche d'entrée (100 neurones), une couche cachée (50 neurones), et une couche de sortie (10 neurones).\newline
 Les métriques pour la mesure seront la précision (accuracy) ainsi que le temps d'inférence.
 
+\begin{tabular}{| l |*{6}{c |} r | }
+ \hline			
+   Modèle & CNN & CNN & CNN & CNN & CNN & CNN \\ \hline
+   Nb quantification & 1 & 2 & 4 & 8 & 16 & 32 \\
+   Accuracy (\%) & 10 & 56.2 & 61.2 & 63.6 & 64.9 & 64.4 \\
+   Avg Loss & NaN & 1.257583 & 1.112131 & 1.048991 & 1.024594 & 1.026724 \\
+   Temps CPU (s) & 4.574 & 3.6179 & 4.1767 & 5.34 & 4.0933 & 6.4669 \\
+   Temps Inférence (s) & 0.0004574 & 0.00036179 & 0.00041767 & 0.000534 & 0.00040933 & 0.00064669 \\
+   Temps inférence (ms) & 0.4574 & 0.36179 & 0.41767 & 0.534 & 0.40933 & 0.64669 \\
+   Nb Inférences/s & 2186 & 2765 & 2394 & 1872 & 2443 & 1545 \\
+ \hline  
+ \end{tabular}
 
 \subsection{Performances estimées}
 Ici je dois mettre les résultats d'estimations FINN, avec les ressources utilisées, la fréquence max, etc.
