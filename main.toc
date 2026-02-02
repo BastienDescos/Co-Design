@@ -13,17 +13,17 @@
 \addvspace {1\p@ }
 \contentsline {subsection}{\numberline {4}Estimations implémentations FINN}{5}{subsection.0.1.4}%
 \addvspace {1\p@ }
-\contentsline {subsection}{\numberline {5}Synthèse Vivado}{5}{subsection.0.1.5}%
+\contentsline {subsection}{\numberline {5}Synthèse Vivado}{6}{subsection.0.1.5}%
 \addvspace {1\p@ }
-\contentsline {subsection}{\numberline {6}Carte}{5}{subsection.0.1.6}%
+\contentsline {subsection}{\numberline {6}Carte}{8}{subsection.0.1.6}%
 \addvspace {-10\p@ }
-\contentsline {section}{\numberline {II}Modification MLP pour MNIST}{5}{section.0.2}%
+\contentsline {section}{\numberline {II}Modification MLP pour MNIST}{8}{section.0.2}%
 \addvspace {1\p@ }
-\contentsline {subsection}{\numberline {1}MNIST dans FINN}{5}{subsection.0.2.1}%
+\contentsline {subsection}{\numberline {1}MNIST dans FINN}{8}{subsection.0.2.1}%
 \addvspace {1\p@ }
-\contentsline {subsection}{\numberline {2}Impact de la quantification}{5}{subsection.0.2.2}%
+\contentsline {subsection}{\numberline {2}Impact de la quantification}{8}{subsection.0.2.2}%
 \addvspace {1\p@ }
-\contentsline {subsection}{\numberline {3}Performances estimées}{6}{subsection.0.2.3}%
+\contentsline {subsection}{\numberline {3}Performances estimées}{8}{subsection.0.2.3}%
 \addvspace {-10\p@ }
-\contentsline {section}{\numberline {III}Bibliographie}{7}{section.0.3}%
+\contentsline {section}{\numberline {III}Bibliographie}{9}{section.0.3}%
 \contentsfinish 

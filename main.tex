@@ -127,21 +127,118 @@ FINN sort beaucoup de fichiers de sortie, certains peuvent être très imposant 
     \item \textbf{OOC\_SYNTH}: exécuter une synthèse hors contexte (juste l'accélérateur lui-même, sans aucun système l'entourant) sur le design STITCHED_IP pour obtenir les ressources FPGA post-synthèse et la fréquence d'horloge réalisable;
     \item \textbf{BITFILE}: intégrer l'accélérateur dans un shell pour produire un bitfile autonome;
     \item \textbf{PYNQ\_DRIVER}: générer un pilote Python PYNQ qui peut être utilisé pour lancer l'accélérateur;
-    \item \textbf{DEPLOYMENT\_PACKAGE}: créer un dossier contenant les sorties BITFILE et PYNQ_DRIVER, prêt à être copié vers la plateforme FPGA cible.
+    \item \textbf{DEPLOYMENT\_PACKAGE}: créer un dossier contenant les sorties BITFILE et \newline PYNQ\_DRIVER, prêt à être copié vers la plateforme FPGA cible.
     \item \textbf{OUTPUT\_DIR}: indique le dossier dans lequel l'ensemble des sorties du programmes seront écrites.
     \item \textbf{STEPS}: indique la liste des étapes prédefinie ou personnalisée que FINN va faire pour le build de l'accélérateur.
 \end{itemize}
 Pour le déploiement sur la carte nous aurons besoin du BITFILE ainsi que du PYNQ\_DRIVER.\@ L'ESTIMATE\_REPORTS peut être utile en amont pour savoir les ressources et les performances de notre accélérateur.\@
 
 \subsection{Comparaison des performances}
-Ici je ne sais pas encore quoi mettre.
+Nous allons faire varier la quantification des poids et des activations de 2 bits à 16 bits et comparer les performances du modèle sur le dataset UNSW-NB15.\newline
+Nous allons mesurer la précision (accuracy) ainsi que le temps d'inférence sur CPU.\@ \newline
+Voici les résultats obtenus: 
+
+\begin{center}
+\begin{tabular}{|l|*{4}{c|}r|}
+
+ \hline
+   Modèle & MLP & MLP & MLP & MLP & MLP \\ \hline
+   Nb quantification & 2 & 4 & 8 & 16 & 32 \\
+   Accuracy (\%) & 73.5 & 79.2 & 81.3 & 82.1 & 82.3 \\
+   Avg Loss & 0.6012 & 0.5123 & 0.4789 & 0.4567 & 0.4501 \\
+   Temps CPU (s) & 12.34 & 13.45 & 14.56 & 15.67 & 16.78 \\
+   Temps Inférence (s) & 0.001234 & 0.001345 & 0.001456 & 0.001567 & 0.001678 \\
+   Temps inférence (ms) & 1.234 & 1.345 & 1.456 & 1.567 & 1.678 \\
+   Nb Inférences/s & 810 & 743 & 686 & 638 & 596 \\
+ \hline  
+ \end{tabular}
+\end{center}
+
+Comme nous pouvons le voir, la quantification a un impact significatif sur les performances du modèle.
+En effet, plus la quantification est faible, plus la précision diminue. Cependant, le temps d'inférence diminue également, ce qui peut être bénéfique pour les applications en temps réel.\@
+Nous remarquons aussi que la diminution de la précision n'est pas linéaire par rapport à la taille de la quantification. En effet, dès que la quantification est de 4 bits, nous observons une accuracy qui est très semblable.\newline
+Il est donc important de trouver un compromis entre la taille de la quantification et les performances du modèle en fonction des besoins de l'application.\@
 
 \subsection{Estimations implémentations FINN}
-Ici je dois mettre les résultats d'estimations FINN, avec les ressources utilisées, la fréquence max, etc.
+Les max FPS visés sont de 1 000 000 (1 MOps). 
+La période est de 10ns soit une fréquence de 100 000 000 Hz, soit 100MHz.\newline 
+En baissant TARGET_FPS, nous pouvons réduire la configuration matérielle nécessaire.\newline
+Coté ressource, le programme estime les utilisations suivantes:
+\begin{itemize}
+    \item LUT: 9354 
+    \item BRAM\_18K: 45
+\end{itemize}
+
+Les performances estimées sont de 1 562 500,0 FPS.
+
+L'architecture comporte les élements suivants: 
+\begin{itemize}
+\item "PE": 16 + 1 + 1 +1 = 19	
+\item "SIMD": 40 + 64 + 64 + 1 = 169
+\end{itemize}
+
+B. Partie Stitched IP et PYNQ bitfile and Driver
+
+Estimation par FINN:
+\begin{itemize}	
+\item LUT: 17640 + 1096 + 1042 + 268 = 20046		
+\item BRAM\_18K = 0
+\item FF: 2037 + 801 + 803 + 68 = 3909			
+\item DSP = 32 + 32 + 1 = 65
+\end{itemize}	
+
+Les performances estimées par FINN sont de 448430.49327354255 FPS.
+
+Les FIFOS permettent de passer les informations d'une couche à une autre ainsi que de synchroniser l'ensemble. 
+Ici elles sont de 32 à 2 entre la couche d'entrée et le couche 1 puis de 2 à 2 entre les autres couches. Cela veut donc dire que les couches ont besoin d’un certain nombre d’entrées pour pouvoir fonctionner (ici 2).
+
 
 \subsection{Synthèse Vivado}
-Ici je dois mettre les résultats de la synthèse Vivado, avec les ressources utilisées, la fréquence max, etc.
+Nous pouvons maintenant regarder les ressources utilisées après synthèse Vivado.
+Pour les lire, nous nous sommes rendus dans le rapport post synthèse Vivado qui est parmi les rapports dans le final output du programme 3.
+Nous obtenons les résultats suivants:
+\begin{itemize}
+    \item LUT: 12711
+    \item BRAM\_18K: 2
+    \item FF: 15854
+    \item BRAM\_36K: 22
+    \item DSP: 129
+    \item SRL: 381
+\end{itemize}
+Pour ouvrir Vivado, nous devons definir l'environnement avec la commande suivante en étant à la racine:
+\begin{verbatim}
+source /etc/Xilinx/Vivado/2020.2/settings64.sh
+\end{verbatim}
+Puis nous ouvrons Vivado en étant dans le dossier /tmp et dans le sous dossier créé par le programme 3 avec la commande:
+\begin{verbatim}
+vivado finn_zynq_link.xpr
+\end{verbatim}
+Les valeurs indiqués dans le rapport post-synthèse sont également retrouvable au sein de Vivado dans les ressources implémentées:
 
+\begin{figure}[H]
+\centering
+\includegraphics{Images/Graph_Utilisation_Table_unsw.png}
+\caption{Tableau de l'utilisation des ressources}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics{Images/Graph_Utilisation_Graph_unsw.png}
+\caption{Graphique de l'utilisation des ressources}
+\end{figure}
+
+Comme nous pouvons le voir, l'utilisation des ressources est très faible par rapport aux ressources disponibles sur la carte FPGA.\@
+On voit que les ressources utilisées sont largement inférieures aux ressources estimées par FINN.\@
+Cela peut être dû à plusieurs facteurs, notamment les optimisations effectuées par le synthétiseur Vivado qui peuvent réduire l'utilisation des ressources par rapport aux estimations initiales de FINN.\@
+
+La répartition des ressources utilisées est la suivante:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{Images/Implem_Ressources_FPGA_unsw.png}
+\caption{Image de la répartition des ressources utilisées}
+\end{figure}
+Nous pouvons croire que la majorité des ressources sont utilisées mais en réalité, nous voyons bien dans la table ainsi que dans le graphique que l'utilisation des ressources est très faible par rapport aux ressources disponibles sur la carte FPGA.\@
+La présence de bleu de partout dans l'image explique juste un grand étalement des ressources utilisées sur la carte.\@
 \subsection{Carte}
 Ici je dois mettre ce que le prof envoi en sceenshot et aussi faire un équivalent entre FPGA et CPU/GPU.\@
 
