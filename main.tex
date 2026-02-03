@@ -134,7 +134,7 @@ FINN sort beaucoup de fichiers de sortie, certains peuvent être très imposant 
 Pour le déploiement sur la carte nous aurons besoin du BITFILE ainsi que du PYNQ\_DRIVER.\@ L'ESTIMATE\_REPORTS peut être utile en amont pour savoir les ressources et les performances de notre accélérateur.\@
 
 \subsection{Comparaison des performances}
-Nous allons faire varier la quantification des poids et des activations de 2 bits à 16 bits et comparer les performances du modèle sur le dataset UNSW-NB15.\newline
+Nous allons faire varier la quantification des poids et des activations de 2 bits à 32 bits et comparer les performances du modèle sur le dataset UNSW-NB15.\newline
 Nous allons mesurer la précision (accuracy) ainsi que le temps d'inférence sur CPU.\@ \newline
 Voici les résultats obtenus: 
 
@@ -145,7 +145,6 @@ Voici les résultats obtenus:
    Modèle & MLP & MLP & MLP & MLP & MLP \\ \hline
    Nb quantification & 2 & 4 & 8 & 16 & 32 \\
    Accuracy (\%) & 73.5 & 79.2 & 81.3 & 82.1 & 82.3 \\
-   Avg Loss & 0.6012 & 0.5123 & 0.4789 & 0.4567 & 0.4501 \\
    Temps CPU (s) & 12.34 & 13.45 & 14.56 & 15.67 & 16.78 \\
    Temps Inférence (s) & 0.001234 & 0.001345 & 0.001456 & 0.001567 & 0.001678 \\
    Temps inférence (ms) & 1.234 & 1.345 & 1.456 & 1.567 & 1.678 \\
@@ -242,15 +241,14 @@ La présence de bleu de partout dans l'image explique juste un grand étalement 
 \subsection{Carte}
 Ici je dois mettre ce que le prof envoi en sceenshot et aussi faire un équivalent entre FPGA et CPU/GPU.\@
 
-\section{Modification MLP pour MNIST}
+\section{Modification MLP pour CIFAR10}
 
-\subsection{MNIST dans FINN}
-Le dataset MNIST est un ensemble de données utilisé pour la reconnaissance de chiffres manuscrits.
-Il contient 60,000 images d'entraînement et 10,000 images de test, chaque image étant une image en niveaux de gris de 28$\times$28 pixels représentant un chiffre de 0 à 9. \newline
-Afin de nous servir de MNIST, nous allons utiliser à nouveau le framework FINN.\@
+\subsection{CIFAR10 dans FINN}
+Le dataset CIFAR10 est un ensemble de données utilisé pour la reconnaissance d'images.
+Il contient 60,000 images d'entraînement et 10,000 images de test, chaque image étant une image en couleur de 32$\times$32 pixels représentant un objet appartenant à l'une des 10 classes suivantes: avion, automobile, oiseau, chat, cerff, chien, grenouille, cheval, bateau, camion. \newline
+Afin de nous servir de CIFAR10, nous allons utiliser à nouveau le framework FINN.\@
 
 \subsection{Impact de la quantification}
-Ici je dois mettre les résultats d'impact de la quantification sur MNIST / CIFFAR10.
 Afin de réaliser la quantification, nous allons utiliser Brevitas qui est une bibliothèque de quantification pour PyTorch.
 Pour ce faire, nous avons utilisé des couches de Brevitas pour remplacer les couches standards de PyTorch.
 Cela s'effectue comme suit:
@@ -261,24 +259,60 @@ qnn.QuantConv2d(3, 6, kernel_size=5, bias=True, padding = 2, weight_bit_width=16
 Nous voyons dans cette ligne la définition d'une couche de convolution quantifiée avec des poids sur 16 bits (weight\_bit\_width=16).
 Le reste ne change pas par rapport à une couche de convolution standard de PyTorch.
 
-Pour réaliser l'impact de la quantification, nous avons entraîné plusieurs modèles avec des poids et des activations de différentes tailles (2, 4, 8, 16 bits) et nous avons comparé les performances de ces modèles sur le dataset CIFFAR10.
+Pour réaliser l'impact de la quantification, nous avons entraîné plusieurs modèles avec des poids et des activations de différentes tailles (2, 4, 8, 16, 32 bits) et nous avons comparé les performances de ces modèles sur le dataset CIFAR10.
 Nous avons également comparé ces modèles avec un modèle non quantifié (poids et activations en 32 bits flottants). \newline
 Pour les modèles utilisés nous avons utilisé un modèle simple de CNN avec 2 couches de convolution suivies de 2 couches fully connected type LeNet-5. \newline
 Nous avons également utilisé un modèle de MLP avec 3 couches soit 1 couche d'entrée (100 neurones), une couche cachée (50 neurones), et une couche de sortie (10 neurones).\newline
+Tout ces modèles ont été entraînés sur CPU et sur GPU pour comparer les performances, et voir si la quantifiaction avait un impact différent en fonction du moteur de calcul.\@
 Les métriques pour la mesure seront la précision (accuracy) ainsi que le temps d'inférence.
 
-\begin{tabular}{| l |*{6}{c |} r | }
- \hline			
-   Modèle & CNN & CNN & CNN & CNN & CNN & CNN \\ \hline
-   Nb quantification & 1 & 2 & 4 & 8 & 16 & 32 \\
-   Accuracy (\%) & 10 & 56.2 & 61.2 & 63.6 & 64.9 & 64.4 \\
-   Avg Loss & NaN & 1.257583 & 1.112131 & 1.048991 & 1.024594 & 1.026724 \\
-   Temps CPU (s) & 4.574 & 3.6179 & 4.1767 & 5.34 & 4.0933 & 6.4669 \\
-   Temps Inférence (s) & 0.0004574 & 0.00036179 & 0.00041767 & 0.000534 & 0.00040933 & 0.00064669 \\
-   Temps inférence (ms) & 0.4574 & 0.36179 & 0.41767 & 0.534 & 0.40933 & 0.64669 \\
-   Nb Inférences/s & 2186 & 2765 & 2394 & 1872 & 2443 & 1545 \\
- \hline  
- \end{tabular}
+\begin{table}[H]
+    \caption{Tableau des performances CPU CIFAR10}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{| l |*{7}{c |} c |}
+    \hline			
+   Modèle & CNN & CNN & CNN & CNN & CNN & CNN & CNN & MLP \\ \hline
+   Nb quantification & 1 & 2 & 4 & 8 & 16 & 32 & N/B & N/B \\
+   Accuracy (\%) & 10 & 56.2 & 61.2 & 63.6 & 64.9 & 64.4 & 63.5 & 41.7 \\
+   Avg Loss & NaN & 1.257583 & 1.112131 & 1.048991 & 1.024594 & 1.026724 & 1.046408 & 1.642302\\
+   Temps CPU (s) & 4.574 & 3.6179 & 4.1767 & 5.34 & 4.0933 & 6.4669 & 4.5768 & 4.4393 \\
+   Temps Inférence (s) & 0.0004574 & 0.00036179 & 0.00041767 & 0.000534 & 0.00040933 & 0.00064669 & 0.00045768 & 0.00044393 \\
+   Temps inférence (ms) & 0.4574 & 0.36179 & 0.41767 & 0.534 & 0.40933 & 0.64669 & 0.45768 & 0.44393 \\
+   Nb Inférences/s & 2186 & 2765 & 2394 & 1872 & 2443 & 1545 & 2185 & 2253 \\
+    \hline 
+    \end{tabular}%
+    }
+ \end{table}
+
+\begin{table}[H]
+    \caption{Tableau des performances GPU CIFAR10}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{| l |*{7}{c |} c |}
+    \hline			
+   Modèle & CNN & CNN & CNN & CNN & CNN & CNN & CNN & MLP \\ \hline
+   Nb quantification & 1 & 2 & 4 & 8 & 16 & 32 & N/B & N/B \\
+   Accuracy (\%) & 10 & 57 & 62.1 & 62.2 & 63.9 & 62.3 & 63.7 & 40.2 \\
+   Avg Loss & NaN & 1.232358 & 1.090406 & 1.084034 & 1.033 & 1.078849 & 1.058 & 1.67\\
+   Temps GPU (s) & 3.698327 & 4.547411 & 3.6645641 & 3.685435 & 3.700761 & 4.67698526 & 1.601 & 1.73683 \\
+   Temps Inférence (s) & 0.0003698327 & 0.0004547411 & 0.00036645641 & 0.0003685435 & 0.0003700761 & 0.000467698526 & 0.0001601 & 0.000173683 \\
+   Temps inférence (ms) & 0.3698327 & 0.4547411 & 0.36645641 & 0.3685435 & 0.3700761 & 0.467698526 & 0.1601 & 0.173683 \\
+   Nb Inférences/s & 2704 & 2200 & 2729 & 2713 & 2702 & 2138 & 6246 & 5758 \\
+    \hline 
+    \end{tabular}%
+    }
+    \end{table}
+Nous voyons que la quantifiaction a un impact significatif sur les performances du modèle.
+En effet, plus la quantification est faible, plus la précision diminue. Une fois la quantification fait, il n'y a pas de grande différence entre les différentes tailles de quantification en terme de vitesse d'éxécution.\newline
+Nous observons cependant que la quantification a un impact plus important sur le GPU que sur le CPU.\@
+En effet, le temps de calcul sur GPU du moèdle quantifié est grandement plus élevé que celui du modèle non quantifié, divisant jusqu'à par 3 les performances.\@
+Ceci s'explique par le fait que les GPU sont optimisés pour les calculs en virgule flottante, et que la quantification réduit la précision des calculs, ce qui peut entraîner une perte de performance sur ces architectures.\newline
+En revanche, sur CPU, la différence de performance entre le modèle quantifié et le modèle non quantifié est moins prononcée, car les CPU sont plus polyvalents et peuvent gérer efficacement les calculs en virgule flottante et les calculs quantifiés.\@ \newline
+Nous remarquons que lorsque la quantification est de 2 bits, la précision chute drastiquement, ce qui indique que cette taille de quantification est trop faible pour ce type de modèle et de dataset.\@
+Pire encore, la quantification binaire (1 bit) ne permet pas du tout d'apprendre, le modèle retourne une accuracy de 10\% ce qui est équivalent à un tirage aléatoire.\@
+
+Sur FPGA la quantification est très bénéfique car elle permet de réduire la taille du modèle et d'améliorer la vitesse d'inférence, ce qui est crucial pour les applications en temps réel.\@ \newline
+L'amélioration du temps d'inférence s'explique par le fait que les opérations sur des entiers de faible taille sont beaucoup plus rapides et consomment moins de ressources que les opérations en virgule flottante, mais aussi par le fait que nous pouvons parralléliser les opérations sur FPGA.\@
+
 
 \subsection{Performances estimées}
 Ici je dois mettre les résultats d'estimations FINN, avec les ressources utilisées, la fréquence max, etc.
