@@ -239,14 +239,34 @@ La répartition des ressources utilisées est la suivante:
 Nous pouvons croire que la majorité des ressources sont utilisées mais en réalité, nous voyons bien dans la table ainsi que dans le graphique que l'utilisation des ressources est très faible par rapport aux ressources disponibles sur la carte FPGA.\@
 La présence de bleu de partout dans l'image explique juste un grand étalement des ressources utilisées sur la carte.\@
 \subsection{Carte}
-Ici je dois mettre ce que le prof envoi en sceenshot et aussi faire un équivalent entre FPGA et CPU/GPU.\@
+Partie non réalisée en TP, faite à partir du screenshot fourni.
+
+Après avoir généré le bitfile et le driver PYNQ, nous pouvons maintenant déployer notre modèle sur la carte PYNQ-Z2.\@ \newline
+Pour ce faire, nous copions le dossier de déploiement généré par FINN sur la carte PYNQ-Z2.\@ \newline
+Ensuite, nous utilisons le driver PYNQ pour charger le bitfile sur la carte et exécuter des inférences sur le modèle.\@
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Images/run_on_pynq.png}
+\caption{Image de l'exécution du modèle sur la carte PYNQ-Z2}
+\end{figure}
+
+Nous remarquons plusieurs informations intéressantes:
+\begin{itemize}
+    \item L'accuracy indiquée est de 91.84\%. Nous pouvons cependant noter que le dossier s'appelle mlp-mnist, ce qui indique que le dataset utilisé est MNIST et non UNSW-NB15. Cela peut expliquer l'accuracy élevée.
+    \item Le temps d'execution est de 5.8088 ms, sachant que le batch size est de 5000, cela nous donne un temps d'inférence par image de 1.16176 µs, soit 860 758 inférences par seconde. 
+    \item La fréquence d'horloge est de 100 MHz, ce qui est conforme à nos attentes.
+\end{itemize}
+
+Grâce au screenshot vivado, nous remarquons que même si le dataset est différent,le modèle lui comporte une configuration similaire à la notre (PE et SIMD identiques). Nous pouvons donc en conclure que notre modèle devrait avoir des performances similaires.
 
 \section{Modification MLP pour CIFAR10}
 
 \subsection{CIFAR10 dans FINN}
 Le dataset CIFAR10 est un ensemble de données utilisé pour la reconnaissance d'images.
-Il contient 60,000 images d'entraînement et 10,000 images de test, chaque image étant une image en couleur de 32$\times$32 pixels représentant un objet appartenant à l'une des 10 classes suivantes: avion, automobile, oiseau, chat, cerff, chien, grenouille, cheval, bateau, camion. \newline
-Afin de nous servir de CIFAR10, nous allons utiliser à nouveau le framework FINN.\@
+Il contient 60,000 images d'entraînement et 10,000 images de test, chaque image étant une image en couleur de 32$\times$32 pixels représentant un objet appartenant à l'une des 10 classes suivantes: avion, automobile, oiseau, chat, cerff, chien, grenouille, cheval, bateau, camion. \@
+
+Afin de nous servir de CIFAR10, nous allons utiliser à nouveau le framework FINN en modifiant les paramètres de configuration pour qu'ils soient adaptés au dataset CIFAR10.
+Nous allons également devoir modifier le modèle de réseau de neurones pour qu'il soit adapté à la reconnaissance d'images.\newline
 
 \subsection{Impact de la quantification}
 Afin de réaliser la quantification, nous allons utiliser Brevitas qui est une bibliothèque de quantification pour PyTorch.
