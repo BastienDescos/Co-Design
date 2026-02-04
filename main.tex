@@ -15,7 +15,7 @@
     % Header Variables
         \newcommand{\headRE}{Co-Design~--~Rapport de TP}
         \newcommand{\headLE}{\emph{\rightmark}}
-        \newcommand{\footRE}{B.Descos $-$ \cdate}
+        \newcommand{\footRE}{Bastien Descos}
         \newcommand{\footLE}{\emph{\thepage}}
 
     % TOC Variables
@@ -206,7 +206,7 @@ Nous obtenons les résultats suivants:
 \end{itemize}
 Pour ouvrir Vivado, nous devons definir l'environnement avec la commande suivante en étant à la racine:
 \begin{verbatim}
-source /etc/Xilinx/Vivado/2020.2/settings64.sh
+source /opt/Xilinx/Vivado/2020.2/settings64.sh
 \end{verbatim}
 Puis nous ouvrons Vivado en étant dans le dossier /tmp et dans le sous dossier créé par le programme 3 avec la commande:
 \begin{verbatim}
@@ -335,15 +335,132 @@ L'amélioration du temps d'inférence s'explique par le fait que les opérations
 
 
 \subsection{Performances estimées}
-Ici je dois mettre les résultats d'estimations FINN, avec les ressources utilisées, la fréquence max, etc.
-Ainsi que la synthèse Vivado avec les ressources utilisées, la fréquence max, etc.
 
-\newpage
+\subsubsection{Modèle Importé}
+Voici le modèle importé:
+
+\begin{figure}[H]
+    \centering
+    
+    % --- Première image (gauche) ---
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        % width=\linewidth signifie "prend toute la largeur du bloc de 30%"
+        \includegraphics[width=\linewidth]{Images/Netron_Part_1.png}
+        \caption{Légende image 1}
+    \end{subfigure}
+    \hfill % Espace élastique entre les images
+    % --- Deuxième image (milieu) ---
+    \begin{subfigure}[b]{0.20\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Images/Netron_Part_2.png}
+        \caption{Légende image 2}
+    \end{subfigure}
+    \hfill % Espace élastique entre les images
+    % --- Troisième image (droite) ---
+    \begin{subfigure}[b]{0.20\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Images/Netron_Part_3.png}
+        \caption{Légende image 3}
+    \end{subfigure}
+    
+    \caption{Titre général pour les trois images}
+   \label{fig:trois_images}
+\end{figure}
+L'accuracy lors du process sur le CPU est de 41,03\% pour le MLP.
+
+\subsubsection{Importation dans FINN}
+Les max FPS visés ne sont pas les mêmes que dans la partie 1 (1 MOps), car après essai il semblait impossible qu'il puisse y arriver et créait donc une erreur lors de la création du bitfile.
+Cela semble logique, quand nouus voyons la complexité du dataset CIFAR10 comparé à UNSW-NB15.\newline
+De même, nous avons vu sur le sceenshot que la vitesse de sortie n'est que de 840 000 FPS pour un MNIST (peut-être pour un USNW-NB15 car nous n'avons pas l'information du dataset utilisé pour le screenshot). 
+Je suis donc parti sur 1MOps dans un premier temps pour le repport only et j'ai adapté pour mettre 100 000 FPS (100 kOps) pour la génération du bitfile et du driver.\newline
+
+Les performances estimées sont de 1 041 667 FPS soit quand même 521 000 FPS de moins que pour le dataset UNSW.
+Cela semble donc confirmer ce que nous disons dans le paragraphe précédent.\newline
+Nous voyons par contre que la vitesse est bien plus grande que pour les CPU et GPU, ce qui est normal dû à la parallèlisation des opérations sur FPGA.\newline
+
+Coté ressource, le programme estime les utilisations suivantes:
+\begin{itemize}
+    \item LUT: 179483 
+    \item BRAM\_18K: 186
+\end{itemize}
+
+L'architecture comporte les élements suivants: 
+\begin{itemize}
+\item "PE": 100 + 5 + 1 = 106	
+\item "SIMD": 32 + 25 + 10 = 70
+\end{itemize}
+
+B. Partie Stitched IP et PYNQ bitfile and Driver
+
+Estimation par FINN:
+\begin{itemize}	
+\item LUT: 10138 + 660 + 631 = 11429		
+\item BRAM\_18K: 0 
+\item FF: 29097 + 545 + 209 = 30051			
+\item DSP : 170 + 7 + 1 = 178
+\end{itemize}	
+
+Les performances estimées par FINN sont de ... FPS.
+
+Les FIFOS sont ont une profondeur de 32 pour celle entre la couche d'entrée et la première couche de neurones puis de 2 entre les couches.
+
+
+\subsubsection{Synthèse Vivado}
+Nous pouvons maintenant regarder les ressources utilisées après synthèse Vivado.
+Pour les lire, nous nous sommes rendus dans le rapport post synthèse Vivado qui est parmi les rapports dans le final output du programme 3.
+Nous obtenons les résultats suivants:
+\begin{itemize}
+    \item LUT: 19720
+    \item BRAM\_18K: 3 
+    \item FF: 40333
+    \item BRAM\_36K: 19 
+    \item DSP: 220
+    \item SRL: 1188
+\end{itemize}
+
+Les valeurs indiqués dans le rapport post-synthèse sont également retrouvable au sein de Vivado dans les ressources implémentées:
+
+\begin{figure}[H]
+\centering
+\includegraphics{Images/Graph_Utilisation_Table_CIFAR10.png}
+\caption{Tableau de l'utilisation des ressources}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics{Images/Graph_Utilisation_Graph_CIFAR10.png}
+\caption{Graphique de l'utilisation des ressources}
+\end{figure}
+
+Comme nous pouvons le voir, l'utilisation des ressources est plus importante par rapport aux ressources utilisés par le MLP du dataset UNSW, ce qui est normal du à la taille plus importante du modèle.\@
+On voit que les ressources utilisées sont toujours largement inférieures aux ressources estimées par FINN.\@
+Nous voyons égalemment que les ressources utilisées commencent à être significatives par rapport aux ressources disponibles sur le SoC FPGA notamment en terme de DSP où nous utilisons les 220 DSP disponible sur la carte.\@
+
+La répartition des ressources utilisées est la suivante:
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{Images/Implem_Ressources_FPGA_CIFAR10.png}
+\caption{Image de la répartition des ressources utilisées}
+\end{figure}
+Nous voyons en effet que l'utilisation des ressources commence à atteindre certai0nes limites, ce qui est visible par la grande ligne bleue représentant les DSP.\@
+Même si nous sommes loin d'une saturation des ressources autre que DSP, nous voyons que la réaprtition est homogène à l'ensemble de la carte, ce qui a pour effet de paraitre saturé à tout les plans.\@
+
+Il est à noter que lors de l'implementation du modèle sur la carte, nous avons rencontré un critical warning nous indiquant que le design ne parvient pas à atteindre les timings requirements.
+\begin{figure}[H]
+\centering
+\includegraphics{Images/Fail_Requierement.png}
+\caption{Message du Critical Warning}
+\end{figure}
+
 \section{Bibliographie}
 Liens vers les références utilisées pour la réalisation du rapport: \newline
 \url{https://www.kaggle.com/code/mrwellsdavid/unsw-nb15-dataset-mlp-classifier/notebook} \newline
 \url{https://xilinx.github.io/brevitas/v0.12.1/tutorials/tvmcon2021.html} \newline
 \url{https://github.com/Xilinx/brevitas?tab=readme-ov-file} \newline
-\url{https://arxiv.org/pdf/2103.13630} \newline
+\url{https://arxiv.org/pdf-/2103.13630} \newline
+\url{https://arxiv.org/pdf/1612.07119}\newline
+\url{https://www.youtube.com/watch?v=zw2aG4PhzmA} \newline
+
 
 \end{document}

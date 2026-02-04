@@ -24,6 +24,9 @@
 \contentsline {subsection}{\numberline {2}Impact de la quantification}{9}{subsection.0.2.2}%
 \addvspace {1\p@ }
 \contentsline {subsection}{\numberline {3}Performances estimées}{10}{subsection.0.2.3}%
+\contentsline {subsubsection}{\numberline {3.a}Modèle Importé}{10}{subsubsection.0.2.3.1}%
+\contentsline {subsubsection}{\numberline {3.b}Importation dans FINN}{11}{subsubsection.0.2.3.2}%
+\contentsline {subsubsection}{\numberline {3.c}Synthèse Vivado}{11}{subsubsection.0.2.3.3}%
 \addvspace {-10\p@ }
-\contentsline {section}{\numberline {III}Bibliographie}{11}{section.0.3}%
+\contentsline {section}{\numberline {III}Bibliographie}{13}{section.0.3}%
 \contentsfinish 
